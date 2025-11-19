@@ -9,7 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors({
-  origin: "https://senseway.vercel.app",
+  origin: "https://sense-way.vercel.app",
   methods: ["GET", "POST"],
   allowedHeaders: ["Content-Type"]
 }));
