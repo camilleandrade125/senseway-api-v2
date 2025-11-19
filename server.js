@@ -8,15 +8,6 @@ const prisma = new PrismaClient();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// 👉 1) Forçar HTTPS no Railway
-app.use((req, res, next) => {
-  const proto = req.headers["x-forwarded-proto"];
-  if (proto && proto !== "https") {
-    return res.redirect(301, `https://${req.headers.host}${req.url}`);
-  }
-  next();
-});
-
 app.use(cors({
   origin: "https://senseway.vercel.app",
   methods: ["GET", "POST"],
