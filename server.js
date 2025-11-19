@@ -8,18 +8,43 @@ const prisma = new PrismaClient();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// 👉 1) Forçar HTTPS no Railway
+app.use((req, res, next) => {
+  const proto = req.headers["x-forwarded-proto"];
+  if (proto && proto !== "https") {
+    return res.redirect(301, `https://${req.headers.host}${req.url}`);
+  }
+  next();
+});
 
-app.use(cors());
+// 👉 2) CORS (AJUSTAR AQUI DEPOIS)
+app.use(cors({
+  origin: "*", 
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type"]
+}));
+
+// 👉 3) HSTS
+app.use((req, res, next) => {
+  res.setHeader(
+    "Strict-Transport-Security",
+    "max-age=31536000; includeSubDomains"
+  );
+  next();
+});
+
 app.use(express.json());
 
 // Função para gerar data e hora do Brasil (sem bug de fuso)
 function getDateTimeBR() {
   const now = new Date();
-
-  // Garante o horário em UTC-3 (Brasília)
   const options = { timeZone: "America/Sao_Paulo" };
   const date = now.toLocaleDateString("pt-BR", options);
-  const time = now.toLocaleTimeString("pt-BR", { ...options, hour: "2-digit", minute: "2-digit" });
+  const time = now.toLocaleTimeString("pt-BR", {
+    ...options,
+    hour: "2-digit",
+    minute: "2-digit"
+  });
 
   return { date, time };
 }
@@ -63,7 +88,7 @@ app.get("/location/last", async (req, res) => {
       return res.status(404).json({ message: "Nenhuma localização encontrada" });
     }
 
-    const last = locations[locations.length - 1]; // Pega o último inserido no banco
+    const last = locations[locations.length - 1];
     res.json(last);
   } catch (err) {
     console.error("Erro ao buscar última localização:", err);
@@ -87,4 +112,6 @@ app.get("/location/history", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log(`✅ Servidor rodando na porta ${PORT}`));
+app.listen(PORT, () =>
+  console.log(`✅ Servidor rodando na porta ${PORT} (HTTPS ENFORCED)`)
+);
