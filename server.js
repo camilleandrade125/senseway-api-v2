@@ -17,14 +17,14 @@ app.use((req, res, next) => {
   next();
 });
 
-// 👉 2) CORS (AJUSTAR AQUI DEPOIS)
 app.use(cors({
-  origin: "*", 
+  origin: "https://senseway.vercel.app",
   methods: ["GET", "POST"],
   allowedHeaders: ["Content-Type"]
 }));
 
-// 👉 3) HSTS
+
+
 app.use((req, res, next) => {
   res.setHeader(
     "Strict-Transport-Security",
